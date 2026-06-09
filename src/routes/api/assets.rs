@@ -2,6 +2,7 @@ use axum::{Json, Router, extract::State, routing::get};
 
 use crate::{
     app::AppState,
+    auth::Admin,
     dto::{CreateAsset, DeleteAsset, UpdateAsset},
     models::Asset,
     routes,
@@ -20,6 +21,7 @@ pub async fn list(state: State<AppState>) -> Json<Vec<Asset>> {
 
 #[tracing::instrument(skip_all)]
 pub async fn create(
+    _admin: Admin,
     state: State<AppState>,
     Json(request): Json<CreateAsset>,
 ) -> Result<Json<Asset>, routes::Error> {
@@ -42,6 +44,7 @@ pub async fn create(
 
 #[tracing::instrument(skip_all)]
 pub async fn delete(
+    _admin: Admin,
     state: State<AppState>,
     Json(request): Json<DeleteAsset>,
 ) -> Result<Json<Asset>, routes::Error> {
@@ -57,6 +60,7 @@ pub async fn delete(
 
 #[tracing::instrument(skip_all)]
 pub async fn update(
+    _admin: Admin,
     state: State<AppState>,
     Json(request): Json<UpdateAsset>,
 ) -> Result<Json<Asset>, routes::Error> {
