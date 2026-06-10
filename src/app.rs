@@ -1,20 +1,22 @@
-use std::{collections::HashMap, sync::Arc};
+use std::env;
 
 use axum::Router;
-use tokio::{net::TcpListener, sync::RwLock};
+use sqlx::PgPool;
+use tokio::net::TcpListener;
 
-use crate::{models::Asset, routes};
+use crate::routes;
 
 #[derive(Clone)]
 pub struct AppState {
-    pub assets: Arc<RwLock<HashMap<i64, Asset>>>,
+    pub pool: PgPool,
 }
 
 impl AppState {
-    pub fn new() -> Self {
-        Self {
-            assets: Default::default(),
-        }
+    async fn new() -> color_eyre::Result<Self> {
+        let database_url = env::var("DATABASE_URL")?;
+        let pool = PgPool::connect(&database_url).await?;
+
+        Ok(Self { pool })
     }
 }
 
@@ -25,9 +27,10 @@ impl App {
         let addr = "localhost:8080";
         let listener = TcpListener::bind(&addr).await?;
 
+        let state = AppState::new().await?;
         let router = Router::new()
             .nest("/api", routes::api::router())
-            .with_state(AppState::new());
+            .with_state(state);
 
         tracing::info!("listening at {addr:?}");
         axum::serve(listener, router).await?;

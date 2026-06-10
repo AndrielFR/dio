@@ -11,6 +11,13 @@ pkgs.stdenv.mkDerivation rec {
     rustToolchain
     rustPlatform.bindgenHook
 
+    # Build
+    pkg-config
+
+    # SSL
+    openssl
+    openssl.dev
+
     # Linker
     wild
 

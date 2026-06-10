@@ -7,11 +7,6 @@ pub struct CreateAsset {
 }
 
 #[derive(Deserialize)]
-pub struct DeleteAsset {
-    pub id: i64,
-}
-
-#[derive(Deserialize)]
 pub struct UpdateAsset {
     pub id: i64,
     pub name: Option<String>,

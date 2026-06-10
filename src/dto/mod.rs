@@ -1,3 +1,3 @@
 pub mod asset;
 
-pub use asset::{CreateAsset, DeleteAsset, UpdateAsset};
+pub use asset::{CreateAsset, UpdateAsset};
