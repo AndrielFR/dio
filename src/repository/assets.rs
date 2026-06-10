@@ -33,8 +33,8 @@ impl Repository {
         sqlx::query_as!(
             Asset,
             "UPDATE assets
-             SET name=COALESCE($2, name),
-                 unit_value=COALESCE($3, unit_value)
+             SET name = COALESCE($2, name),
+                 unit_value = COALESCE($3, unit_value)
              WHERE id=$1
              RETURNING id, name, unit_value;",
             id,

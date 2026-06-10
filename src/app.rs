@@ -30,6 +30,7 @@ impl App {
         let state = AppState::new().await?;
         let router = Router::new()
             .nest("/api", routes::api::router())
+            .merge(routes::frontend::router())
             .with_state(state);
 
         tracing::info!("listening at {addr:?}");

@@ -1,4 +1,5 @@
 pub mod assets;
+pub mod users;
 
 use std::convert::Infallible;
 

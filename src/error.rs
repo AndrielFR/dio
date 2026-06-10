@@ -8,14 +8,20 @@ use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum AppError {
-    #[error("Missing Authorization Header")]
+    #[error("missing authorization header")]
     MissingAuthorization,
-    #[error("Invalid credentials")]
+    #[error("invalid credentials")]
     InvalidCredentials,
-    #[error("Asset does not exists")]
+    #[error("user does not exists")]
+    UserDoesNotExists,
+    #[error("asset does not exists")]
     AssetDoesNotExists,
+    #[error("this username is already registered")]
+    UsernameTaken,
     #[error(transparent)]
     Database(#[from] sqlx::Error),
+    #[error(transparent)]
+    Template(#[from] askama::Error),
 }
 
 #[derive(Debug, Serialize)]
@@ -32,8 +38,9 @@ impl IntoResponse for AppError {
         let status = match self {
             Self::MissingAuthorization => StatusCode::BAD_REQUEST,
             Self::InvalidCredentials => StatusCode::UNAUTHORIZED,
-            Self::AssetDoesNotExists => StatusCode::NOT_FOUND,
-            Self::Database(_) => StatusCode::INTERNAL_SERVER_ERROR,
+            Self::UserDoesNotExists | Self::AssetDoesNotExists => StatusCode::NOT_FOUND,
+            Self::UsernameTaken => StatusCode::BAD_REQUEST,
+            Self::Database(_) | Self::Template(_) => StatusCode::INTERNAL_SERVER_ERROR,
         };
 
         (status, Json(response)).into_response()
