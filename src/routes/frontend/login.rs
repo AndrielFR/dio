@@ -1,5 +1,10 @@
 use askama::Template;
-use axum::{Form, Router, response::Html, routing::get};
+use axum::{
+    Form, Router,
+    response::{Html, IntoResponse, Redirect},
+    routing::get,
+};
+use axum_extra::extract::{CookieJar, cookie::Cookie};
 use serde::Deserialize;
 
 use crate::{app::AppState, auth::user::GuestUser, error::AppError, repository::Repository};
@@ -23,7 +28,11 @@ struct LoginForm {
     password: String,
 }
 
-async fn login(repo: Repository, Form(request): Form<LoginForm>) -> Result<Html<String>, AppError> {
+async fn login(
+    repo: Repository,
+    jar: CookieJar,
+    Form(request): Form<LoginForm>,
+) -> Result<impl IntoResponse, AppError> {
     let guest_user = GuestUser::new(request.username, request.password);
     let user = match guest_user.authenticate(&repo).await {
         Ok(u) => u,
@@ -31,5 +40,8 @@ async fn login(repo: Repository, Form(request): Form<LoginForm>) -> Result<Html<
         Err(e) => return Err(e),
     };
 
-    Ok(Html(user.username().clone()))
+    let token = user.auth_token()?;
+    let cookie = Cookie::build(("token", token)).http_only(true);
+
+    Ok((jar.add(cookie), Redirect::to("/")))
 }

@@ -1,9 +1,12 @@
+mod home;
 mod login;
 
-use axum::Router;
+use axum::{Router, routing::get};
 
 use crate::app::AppState;
 
 pub fn router() -> Router<AppState> {
-    Router::new().nest("/login", login::router())
+    Router::new()
+        .route("/", get(home::page))
+        .nest("/login", login::router())
 }
